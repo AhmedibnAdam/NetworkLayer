@@ -7,15 +7,15 @@
 
 import Foundation
 
-public protocol RetryHandler {
-    func executeWithRetry<T>(
+public protocol RetryHandler: Sendable {
+    func executeWithRetry<T: Decodable>(
         retryCount: Int,
         task: () async throws -> T
     ) async throws -> T
 }
 
 public final class RequestRetryCoordinator: RetryHandler {
-    public func executeWithRetry<T>(
+    public func executeWithRetry<T: Decodable>(
         retryCount: Int,
         task: () async throws -> T
     ) async throws -> T {

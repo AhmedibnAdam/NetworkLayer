@@ -18,17 +18,17 @@ public final class NetworkService {
     private let retryHandler: RetryHandler
     
     public init(
-           urlRequestBuilder: URLRequestBuilder,
-           networkSession: NetworkSession,
-           responseHandler: ResponseHandler,
-           retryHandler: RetryHandler
+        urlRequestBuilder: URLRequestBuilder,
+        networkSession: NetworkSession,
+        responseHandler: ResponseHandler,
+        retryHandler: RetryHandler
     ) {
         self.urlRequestBuilder = urlRequestBuilder
         self.networkSession = networkSession
         self.responseHandler = responseHandler
         self.retryHandler = retryHandler
     }
-       
+    
     public convenience init(urlRequestBuilder: URLRequestBuilder) {
         self.init(
             urlRequestBuilder: urlRequestBuilder,
@@ -40,11 +40,34 @@ public final class NetworkService {
     
     public func request<T: Decodable>(_ request: RequestProtocol) async throws -> T {
         let urlRequest = try urlRequestBuilder.buildURLRequest(from: request)
-        
+        logRequest(urlRequest)
         return try await retryHandler.executeWithRetry(retryCount: request.retryCount) {
-            let (data, response) = try await networkSession.data(for: urlRequest)
-            return try responseHandler.handleResponse(data: data, response: response)
+            do {
+                let (data, response) = try await networkSession.data(for: urlRequest)
+                logResponse(response)
+                return try responseHandler.handleResponse(data: data, response: response)
+            } catch {
+                logError(error)
+                throw NetworkError.networkFailure(error: error)
+            }
         }
     }
-
+    
+    private func logRequest(_ request: URLRequest) {
+        print("************************************************")
+        print(request)
+        print("*********************************************")
+    }
+    
+    private func logResponse(_ response: URLResponse) {
+        print("###################################################")
+        print(response)
+        print("###################################################")
+    }
+    
+    private func logError(_ error: Error) {
+        print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+        print(error)
+        print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+    }
 }
