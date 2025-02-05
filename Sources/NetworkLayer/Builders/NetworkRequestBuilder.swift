@@ -1,39 +1,30 @@
 //
 //  NetworkRequestBuilder.swift
-//  MoviesDB
+//  NetworkLayer
 //
 //  Created by Ahmad on 05/02/2025.
 //
 
 import Foundation
 
-// MARK: - 
+// MARK: - protocol
 public protocol URLRequestBuilder {
     func buildURLRequest(from request: RequestProtocol) throws -> URLRequest
 }
 
 // MARK: - Concrete Implementations
-
 public final class NetworkRequestBuilder: URLRequestBuilder {
-    private let baseURL: URL
-    private let authToken: String?
-    private let apiToken: String?
-    
-    public init(baseURL: URL, authToken: String?, apiToken: String?) {
-        self.baseURL = baseURL
-        self.authToken = authToken
-        self.apiToken = apiToken
-    }
-    
+
     public func buildURLRequest(from request: RequestProtocol) throws -> URLRequest {
-        let url = baseURL.appendingPathComponent(request.path)
-       
+        let url = request.baseURL.appendingPathComponent(request.path)
         var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
         
-        // Add the API key as a query parameter
-        let apiKeyQueryItem = URLQueryItem(name: "api_key", value: apiToken)
-        urlComponents?.queryItems = [apiKeyQueryItem]
+        // Add API Key as Header instead of Query Parameter (Optional, consider your API design)
+        if let apiToken = request.apiToken {
+            urlComponents?.queryItems = [URLQueryItem(name: "api_key", value: apiToken)]
+        }
         
+        // Add additional parameters for GET requests
         if request.method == .get, let parameters = request.parameters {
             urlComponents?.queryItems = parameters.map {
                 URLQueryItem(name: $0.key, value: "\($0.value)")
@@ -49,17 +40,26 @@ public final class NetworkRequestBuilder: URLRequestBuilder {
         urlRequest.timeoutInterval = request.timeoutInterval
         urlRequest.cachePolicy = request.cachePolicy
         
+        // Content-Type Header
         urlRequest.setValue(request.contentType.rawValue, forHTTPHeaderField: "Content-Type")
+        
+        // Custom Headers
         request.headers?.forEach { key, value in
             urlRequest.setValue(value, forHTTPHeaderField: key)
         }
         
-        if request.requiresAuthentication, let authToken = authToken {
+        // Authorization Header if needed
+        if request.requiresAuthentication, let authToken = request.authToken {
             urlRequest.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
         }
         
-       
-        
+        // Handle Request Body
+        try handleRequestBody(for: request, on: &urlRequest)
+
+        return urlRequest
+    }
+
+    private func handleRequestBody(for request: RequestProtocol, on urlRequest: inout URLRequest) throws {
         if request.method != .get, let body = request.body {
             switch request.contentType {
             case .json:
@@ -74,19 +74,19 @@ public final class NetworkRequestBuilder: URLRequestBuilder {
                     .data(using: .utf8)
             }
         }
-        
-        return urlRequest
     }
-    
+
     private func createMultipartFormData(body: [String: Any], boundary: String) -> Data {
         var bodyData = Data()
-        
+
         for (key, value) in body {
+            guard let valueData = "\(value)".data(using: .utf8) else { continue }
             bodyData.append("--\(boundary)\r\n".data(using: .utf8)!)
             bodyData.append("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n".data(using: .utf8)!)
-            bodyData.append("\(value)\r\n".data(using: .utf8)!)
+            bodyData.append(valueData)
+            bodyData.append("\r\n".data(using: .utf8)!)
         }
-        
+
         bodyData.append("--\(boundary)--\r\n".data(using: .utf8)!)
         return bodyData
     }

@@ -1,6 +1,6 @@
 //
 //  NetworkService.swift
-//  MoviesDB
+//  NetworkLayer
 //
 //  Created by Ahmad on 05/02/2025.
 //
@@ -17,11 +17,14 @@ public final class NetworkService {
     private let responseHandler: ResponseHandler
     private let retryHandler: RetryHandler
     
-    public init(
-        urlRequestBuilder: URLRequestBuilder,
-        networkSession: NetworkSession,
-        responseHandler: ResponseHandler,
-        retryHandler: RetryHandler
+    // Singleton instance
+    @MainActor public static let shared = NetworkService()
+    
+    private init(
+        urlRequestBuilder: URLRequestBuilder = NetworkRequestBuilder(),
+        networkSession: NetworkSession = URLSessionDispatcher(),
+        responseHandler: ResponseHandler = APIResponseDecoder(),
+        retryHandler: RetryHandler = RequestRetryCoordinator()
     ) {
         self.urlRequestBuilder = urlRequestBuilder
         self.networkSession = networkSession
@@ -29,18 +32,13 @@ public final class NetworkService {
         self.retryHandler = retryHandler
     }
     
-    public convenience init(urlRequestBuilder: URLRequestBuilder) {
-        self.init(
-            urlRequestBuilder: urlRequestBuilder,
-            networkSession: URLSessionDispatcher(),
-            responseHandler: APIResponseDecoder(),
-            retryHandler: RequestRetryCoordinator()
-        )
-    }
-    
     public func request<T: Decodable>(_ request: RequestProtocol) async throws -> T {
+        if await !ReachabilityManager.shared.isNetworkReachable() {
+            throw NetworkError.networkFailure
+        }
         let urlRequest = try urlRequestBuilder.buildURLRequest(from: request)
         logRequest(urlRequest)
+        
         return try await retryHandler.executeWithRetry(retryCount: request.retryCount) {
             do {
                 let (data, response) = try await networkSession.data(for: urlRequest)
@@ -48,26 +46,32 @@ public final class NetworkService {
                 return try responseHandler.handleResponse(data: data, response: response)
             } catch {
                 logError(error)
-                throw NetworkError.networkFailure(error: error)
+                throw NetworkError.networkFailure
             }
         }
     }
     
     private func logRequest(_ request: URLRequest) {
+        #if DEBUG
         print("********************** Request **************************")
         print(request)
         print("*********************************************")
+        #endif
     }
     
     private func logResponse(_ response: URLResponse) {
+        #if DEBUG
         print("########################## Response #########################")
         print(response)
         print("###################################################")
+        #endif
     }
     
     private func logError(_ error: Error) {
+        #if DEBUG
         print("&&&&&&&&&&&&&&&&&&&&&&&& Error &&&&&&&&&&&&&&&&&&&&&&")
         print(error)
         print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+        #endif
     }
 }

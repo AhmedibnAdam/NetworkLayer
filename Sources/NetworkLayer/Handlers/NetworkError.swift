@@ -1,6 +1,6 @@
 //
 //  NetworkError.swift
-//  MoviesDB
+//  NetworkLayer
 //
 //  Created by Ahmad on 27/01/2025.
 //
@@ -13,7 +13,7 @@ public enum NetworkError: Error, LocalizedError {
     case serverError(statusCode: Int)
     case clientError(statusCode: Int)
     case unknownStatusCode(statusCode: Int)
-    case networkFailure(error: Error)
+    case networkFailure
     case parameterEncodingFailed
     case decodingError(Error)
     case noData
@@ -34,8 +34,8 @@ public enum NetworkError: Error, LocalizedError {
             return "Client error occurred. Status code: \(statusCode)."
         case .unknownStatusCode(let statusCode):
             return "Unexpected status code: \(statusCode)."
-        case .networkFailure(let error):
-            return "Network failure: \(error.localizedDescription)"
+        case .networkFailure:
+            return "Network failure"
         case .parameterEncodingFailed:
             return "parameterEncodingFailed"
         case .decodingError(let error):

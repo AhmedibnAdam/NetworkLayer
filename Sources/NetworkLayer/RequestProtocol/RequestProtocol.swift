@@ -1,6 +1,6 @@
 //
 //  RequestProtocol.swift
-//  MoviesDB
+//  NetworkLayer
 //
 //  Created by Ahmad on 05/02/2025.
 //
@@ -10,6 +10,9 @@ import Foundation
 
 // MARK: - Request Protocol
 public protocol RequestProtocol {
+    var baseURL: URL { get }
+    var authToken: String? { get }
+    var apiToken: String? { get }
     var path: String { get }
     var method: HTTPMethod { get }
     var headers: [String: String]? { get }
