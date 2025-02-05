@@ -38,7 +38,7 @@ public final class NetworkService {
         )
     }
     
-    func request<T: Decodable>(_ request: RequestProtocol) async throws -> T {
+    public func request<T: Decodable>(_ request: RequestProtocol) async throws -> T {
         let urlRequest = try urlRequestBuilder.buildURLRequest(from: request)
         
         return try await retryHandler.executeWithRetry(retryCount: request.retryCount) {
