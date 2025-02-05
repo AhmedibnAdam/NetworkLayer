@@ -19,7 +19,7 @@ public final class NetworkRequestBuilder: URLRequestBuilder {
     private let authToken: String?
     private let apiToken: String?
     
-    init(baseURL: URL, authToken: String?, apiToken: String?) {
+    public init(baseURL: URL, authToken: String?, apiToken: String?) {
         self.baseURL = baseURL
         self.authToken = authToken
         self.apiToken = apiToken

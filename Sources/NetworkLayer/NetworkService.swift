@@ -17,16 +17,25 @@ public final class NetworkService {
     private let responseHandler: ResponseHandler
     private let retryHandler: RetryHandler
     
-    init(
-        urlRequestBuilder: URLRequestBuilder ,
-        networkSession: NetworkSession = URLSessionDispatcher(),
-        responseHandler: ResponseHandler = APIResponseDecoder(),
-        retryHandler: RetryHandler = RequestRetryCoordinator()
+    public init(
+           urlRequestBuilder: URLRequestBuilder,
+           networkSession: NetworkSession,
+           responseHandler: ResponseHandler,
+           retryHandler: RetryHandler
     ) {
         self.urlRequestBuilder = urlRequestBuilder
         self.networkSession = networkSession
         self.responseHandler = responseHandler
         self.retryHandler = retryHandler
+    }
+       
+    public convenience init(urlRequestBuilder: URLRequestBuilder) {
+        self.init(
+            urlRequestBuilder: urlRequestBuilder,
+            networkSession: URLSessionDispatcher(),
+            responseHandler: APIResponseDecoder(),
+            retryHandler: RequestRetryCoordinator()
+        )
     }
     
     func request<T: Decodable>(_ request: RequestProtocol) async throws -> T {
