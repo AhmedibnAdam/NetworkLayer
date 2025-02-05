@@ -22,7 +22,7 @@ public enum NetworkError: Error, LocalizedError {
     case requestCancelled
 
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
         case .invalidURL:
             return "The provided URL is invalid."

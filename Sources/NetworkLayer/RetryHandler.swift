@@ -15,7 +15,7 @@ public protocol RetryHandler {
 }
 
 public final class RequestRetryCoordinator: RetryHandler {
-    func executeWithRetry<T>(
+    public func executeWithRetry<T>(
         retryCount: Int,
         task: () async throws -> T
     ) async throws -> T {

@@ -9,8 +9,8 @@ import Foundation
 
 
 // MARK: - Network Service
+@available(macOS 12.0, *)
 public final class NetworkService {
-    static let shared = NetworkService()
     
     private let urlRequestBuilder: URLRequestBuilder
     private let networkSession: NetworkSession
@@ -18,10 +18,7 @@ public final class NetworkService {
     private let retryHandler: RetryHandler
     
     init(
-        urlRequestBuilder: URLRequestBuilder = NetworkRequestBuilder(
-            baseURL: Configuration.shared.serverURL,
-            authToken: nil, apiToken: Configuration.shared.apiKey
-        ),
+        urlRequestBuilder: URLRequestBuilder ,
         networkSession: NetworkSession = URLSessionDispatcher(),
         responseHandler: ResponseHandler = APIResponseDecoder(),
         retryHandler: RetryHandler = RequestRetryCoordinator()

@@ -6,7 +6,7 @@
 //
 
 
-public struct HTTPMethod: RawRepresentable, Equatable, Hashable {
+public struct HTTPMethod: RawRepresentable, Equatable, Hashable, Sendable {
     /// `CONNECT` method.
     public static let connect = HTTPMethod(rawValue: "CONNECT")
     /// `DELETE` method.

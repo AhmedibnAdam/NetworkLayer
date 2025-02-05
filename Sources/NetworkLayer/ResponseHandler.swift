@@ -12,7 +12,7 @@ public protocol ResponseHandler {
 }
 
 public final class APIResponseDecoder: ResponseHandler {
-    func handleResponse<T: Decodable>(data: Data, response: URLResponse) throws -> T {
+    public func handleResponse<T: Decodable>(data: Data, response: URLResponse) throws -> T {
         guard let httpResponse = response as? HTTPURLResponse else {
             throw NetworkError.invalidResponse
         }

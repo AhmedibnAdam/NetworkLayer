@@ -25,7 +25,7 @@ public final class NetworkRequestBuilder: URLRequestBuilder {
         self.apiToken = apiToken
     }
     
-    func buildURLRequest(from request: RequestProtocol) throws -> URLRequest {
+    public func buildURLRequest(from request: RequestProtocol) throws -> URLRequest {
         let url = baseURL.appendingPathComponent(request.path)
        
         var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
