@@ -7,10 +7,13 @@
 
 import Foundation
 
-
 // MARK: - Network Service
+protocol NetworkServicing {
+    func request<T: Decodable>(_ request: RequestProtocol) async throws -> T
+}
+
 @available(macOS 12.0, *)
-public final class NetworkService {
+public final class NetworkService: NetworkServicing {
     
     private let urlRequestBuilder: URLRequestBuilder
     private let networkSession: NetworkSession
