@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: - Network Service
-protocol NetworkServicing {
+public protocol NetworkServicing {
     func request<T: Decodable>(_ request: RequestProtocol) async throws -> T
 }
 
