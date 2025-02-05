@@ -54,19 +54,19 @@ public final class NetworkService {
     }
     
     private func logRequest(_ request: URLRequest) {
-        print("************************************************")
+        print("********************** Request **************************")
         print(request)
         print("*********************************************")
     }
     
     private func logResponse(_ response: URLResponse) {
-        print("###################################################")
+        print("########################## Response #########################")
         print(response)
         print("###################################################")
     }
     
     private func logError(_ error: Error) {
-        print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+        print("&&&&&&&&&&&&&&&&&&&&&&&& Error &&&&&&&&&&&&&&&&&&&&&&")
         print(error)
         print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
     }
