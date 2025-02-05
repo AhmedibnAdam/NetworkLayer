@@ -18,7 +18,7 @@ public final class NetworkService {
     private let retryHandler: RetryHandler
     
     // Singleton instance
-    @MainActor public static let shared = NetworkService()
+    nonisolated(unsafe) public static let shared = NetworkService()
     
     private init(
         urlRequestBuilder: URLRequestBuilder = NetworkRequestBuilder(),
